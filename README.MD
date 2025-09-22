@@ -1,148 +1,313 @@
-Bemba Automatic Speech Recognition API
+# 🎤 Bemba Automatic Speech Recognition API
 
-This project is a Flask-based web server that provides an API for Automatic Speech Recognition (ASR) using a pre-trained Bemba-language model. It leverages the Hugging Face transformers library to perform high-performance, real-time audio transcription. The server is designed for production use, featuring API key authentication, rate limiting, and GPU support.
+[![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![Flask](https://img.shields.io/badge/Flask-2.0+-green.svg)](https://flask.palletsprojects.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![API Status](https://img.shields.io/badge/API-Live-brightgreen.svg)](https://api.nextinnomind.me)
 
-Features
+> A high-performance Flask-based web server providing real-time Automatic Speech Recognition for the Bemba language using state-of-the-art AI models.
 
-Bemba ASR: Transcribes audio files and URLs into text using the NextInnoMind/next_bemba_ai model.
+## ✨ Features
 
-API Key Authentication: Securely authenticates API requests using a simple, file-based API key system.
+- **🗣️ Bemba ASR**: Advanced speech-to-text transcription using the `NextInnoMind/next_bemba_ai` model
+- **🔐 Secure Authentication**: API key-based authentication system
+- **⚡ Rate Limiting**: Built-in protection against abuse with configurable limits
+- **🚀 GPU Acceleration**: Automatic NVIDIA GPU detection for lightning-fast processing
+- **🔄 Concurrent Processing**: Multi-worker Gunicorn setup for handling multiple requests
+- **📁 Flexible Input**: Support for both file uploads and URL-based audio processing
+- **💚 Health Monitoring**: Built-in health check endpoints for system monitoring
 
-Rate Limiting: Prevents abuse and ensures fair usage with a configurable rate-limiting mechanism.
+## 🏗️ Architecture
 
-GPU Acceleration: Automatically detects and utilizes an NVIDIA GPU (via PyTorch) for faster transcription.
+```mermaid
+graph TB
+    A[Client Request] --> B[Flask API Server]
+    B --> C{Authentication}
+    C -->|Valid API Key| D[Rate Limiting]
+    C -->|Invalid Key| E[401 Unauthorized]
+    D -->|Within Limits| F[Audio Processing]
+    D -->|Rate Exceeded| G[429 Too Many Requests]
+    F --> H[Bemba ASR Model]
+    H --> I[GPU/CPU Processing]
+    I --> J[Transcription Result]
+    J --> K[JSON Response]
+```
 
-Concurrent Processing: Optimized for concurrency using Gunicorn, allowing multiple users to make requests simultaneously.
+## 📋 Prerequisites
 
-File & URL Support: Accepts audio input either through file uploads or by providing a URL to a publicly accessible audio file.
+Ensure you have the following installed:
 
-Health Check: An endpoint to monitor the application's status and model readiness.
+| Requirement | Version | Purpose |
+|------------|---------|---------|
+| **Python** | 3.8+ | Runtime environment |
+| **pip** | Latest | Package management |
+| **git** | Latest | Repository cloning |
+| **virtualenv** | Latest | Dependency isolation |
+| **CUDA** | 11.0+ (optional) | GPU acceleration |
 
-Prerequisites
+## 🚀 Quick Start
 
-Before you begin, ensure you have the following installed on your system:
+### 1. Clone the Repository
 
-Python 3.8+
-
-pip (Python package installer)
-
-git
-
-virtualenv or conda (recommended for dependency management)
-
-Installation
-
-Follow these steps to set up the project locally.
-
-Clone the Repository
-
-git clone [https://github.com/SilasChalwe/farmvoiceassistant_backend.git](https://github.com/SilasChalwe/farmvoiceassistant_backend.git)
+```bash
+git clone https://github.com/SilasChalwe/farmvoiceassistant_backend.git
 cd farmvoiceassistant_backend
+```
 
+### 2. Set up Virtual Environment
 
-
-Set up a Virtual Environment
-
+```bash
+# Create virtual environment
 python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
 
+# Activate (Linux/macOS)
+source venv/bin/activate
 
+# Activate (Windows)
+venv\Scripts\activate
+```
 
-Install Dependencies
-Install all required Python packages. The ASR model requires torch and transformers.
+### 3. Install Dependencies
 
+```bash
+# Core dependencies
 pip install Flask gunicorn torch transformers Flask-Cors
 
+# For GPU support (optional but recommended)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
+```
 
+### 4. Configure Environment Variables
 
-Note: For GPU support, you must install the CUDA-enabled version of PyTorch. Refer to the official PyTorch website for instructions.
+```bash
+export MAX_FILE_SIZE_MB=100
+export MODEL_NAME=NextInnoMind/next_bemba_ai
+export RATE_LIMIT_REQUESTS=10
+export RATE_LIMIT_WINDOW=60
+```
 
-Configuration
+### 5. Start the Server
 
-You can configure the application using environment variables. It is highly recommended to set these before starting the server.
-
-MAX_FILE_SIZE_MB: Maximum allowed size for uploaded audio files in megabytes. (Default: 100)
-
-MODEL_NAME: The name of the Hugging Face model to use for transcription. (Default: NextInnoMind/next_bemba_ai)
-
-RATE_LIMIT_REQUESTS: The number of allowed requests per user within the rate limit window. (Default: 10)
-
-RATE_LIMIT_WINDOW: The time window in seconds for the rate limit. (Default: 60)
-
-Example:
-
-export MAX_FILE_SIZE_MB=50
-export RATE_LIMIT_REQUESTS=20
-
-
-
-Usage
-
-This application is designed to be run with Gunicorn. A convenience script is provided to start the server.
-
-Start the Server
-Use the start_gunicorn.sh script to launch the application with four workers in the background.
-
+```bash
 ./start_app.sh
+```
 
+🎉 **Server is now running at `http://0.0.0.0:5000`**
 
+## 🔧 Configuration Options
 
-The server will be running at http://0.0.0.0:5000 and all logs will be saved to app.log. The Gunicorn process ID will be stored in gunicorn.pid.
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `MAX_FILE_SIZE_MB` | 100 | Maximum upload size in MB |
+| `MODEL_NAME` | `NextInnoMind/next_bemba_ai` | Hugging Face model identifier |
+| `RATE_LIMIT_REQUESTS` | 10 | Requests per time window |
+| `RATE_LIMIT_WINDOW` | 60 | Time window in seconds |
 
-Generate an API Key
-The first step to using the API is to generate a key. Make a POST request to the /api/generate-key endpoint.
+## 📚 API Documentation
 
+### Authentication
+
+All API requests require an `X-API-Key` header with a valid API key.
+
+### Endpoints Overview
+
+| Endpoint | Method | Purpose | Auth Required |
+|----------|--------|---------|---------------|
+| `/api/generate-key` | POST | Generate API key | ❌ |
+| `/transcribe` | POST | Upload & transcribe file | ✅ |
+| `/transcribe_url` | POST | Transcribe from URL | ✅ |
+| `/health` | GET | Health check | ❌ |
+| `/` | GET | Web interface | ❌ |
+
+### 🔑 Generate API Key
+
+```bash
 curl -X POST http://localhost:5000/api/generate-key
+```
 
+**Response:**
+```json
+{
+  "success": true,
+  "message": "API key generated successfully. Please store it securely.",
+  "api_key": "550e8400-e29b-41d4-a716-446655440000abc123def456",
+  "note": "This is the only time the API key will be shown."
+}
+```
 
+> ⚠️ **Important**: Each IP address can only generate one API key. Store your key securely as it won't be shown again!
 
-The response will contain your unique API key. Save this key immediately, as it will not be shown again.
+### 📁 Transcribe Audio File
 
-Transcribe an Audio File
-Use your newly generated API key in the X-API-Key header to transcribe an audio file.
-
+```bash
 curl -X POST http://localhost:5000/transcribe \
   -H "X-API-Key: YOUR_API_KEY_HERE" \
-  -F "file=@/path/to/your/audio.wav"
+  -F "file=@/path/to/audio.wav"
+```
 
+### 🌐 Transcribe from URL
 
+For URL transcription, the response includes the source URL:
 
-Transcribe on the live API endpoint
-You can also test the API on the live server. Note that the live server uses a different base URL.
-
-curl -X POST [https://api.nextinnomind.me/transcribe](https://api.nextinnomind.me/transcribe) \
-  -H "X-API-Key: YOUR_API_KEY_HERE" \
-  -F "file=@/path/to/your/audio.wav"
-
-
-
-Transcribe an Audio from a URL
-You can also transcribe audio directly from a publicly accessible URL.
-
-Local Server
-
+```bash
 curl -X POST http://localhost:5000/transcribe_url \
   -H "Content-Type: application/json" \
   -H "X-API-Key: YOUR_API_KEY_HERE" \
-  -d '{"audio_url": "[https://example.com/audio/sample.mp3](https://example.com/audio/sample.mp3)"}'
+  -d '{"audio_url": "https://example.com/audio.mp3"}'
+```
 
+**URL Response Format:**
+```json
+{
+  "text": "Transcribed text in Bemba",
+  "language": "bemba",
+  "timestamps": [
+    {
+      "timestamp": [0.0, 5.2],
+      "text": "First segment of transcribed text"
+    }
+  ],
+  "success": true,
+  "source_url": "https://example.com/audio.mp3",
+  "processing_time_seconds": 3.45
+}
+```
 
-Live API Endpoint
+**Response Format:**
+```json
+{
+  "text": "Transcribed text in Bemba",
+  "language": "bemba",
+  "timestamps": [
+    {
+      "timestamp": [0.0, 5.2],
+      "text": "First segment of transcribed text"
+    },
+    {
+      "timestamp": [5.2, 10.1],
+      "text": "Second segment of transcribed text"
+    }
+  ],
+  "success": true,
+  "filename": "audio.wav",
+  "processing_time_seconds": 2.34
+}
+```
 
-curl -X POST [https://api.nextinnomind.me/transcribe_url](https://api.nextinnomind.me/transcribe_url) \
-  -H "Content-Type: application/json" \
-  -H "X-API-Key: YOUR_API_KEY_HERE" \
-  -d '{"audio_url": "[https://example.com/audio/sample.mp3](https://example.com/audio/sample.mp3)"}'
+### 🏥 Health Check
 
+```bash
+curl http://localhost:5000/health
+```
 
-API Endpoints
+**Response:**
+```json
+{
+  "status": "healthy",
+  "model_status": "ready",
+  "gpu_available": true,
+  "model": "NextInnoMind/next_bemba_ai",
+  "server_type": "Gunicorn Worker"
+}
+```
 
-POST /api/generate-key: Generates and returns a new API key.
+## 🌍 Live API
 
-POST /transcribe: Transcribes an uploaded audio file. Requires X-API-Key header and a file in the request body.
+Test the API on our live server:
 
-POST /transcribe_url: Transcribes audio from a provided URL. Requires X-API-Key header and a JSON body with the audio_url.
+**Base URL:** `https://api.nextinnomind.me`
 
-GET /health: A simple health check to verify the server and model status.
+```bash
+# Generate API key
+curl -X POST https://api.nextinnomind.me/api/generate-key
 
-GET /: Renders the web interface for the application.
+# Transcribe file
+curl -X POST https://api.nextinnomind.me/transcribe \
+  -H "X-API-Key: YOUR_KEY" \
+  -F "file=@audio.wav"
+```
+
+## 🛡️ Security Features
+
+- **API Key Authentication**: SHA-256 hashed keys stored securely
+- **IP-based Key Generation**: One API key per IP address to prevent abuse
+- **Rate Limiting**: Configurable per-user request limits with sliding window
+- **File Size Validation**: Configurable upload limits (default: 100MB)
+- **Input Sanitization**: Secure filename handling and extension validation
+- **Supported Audio Formats**: WAV, MP3, FLAC, OGG, M4A, AAC
+
+## 🚀 Performance Optimization
+
+- **GPU Acceleration**: Automatic NVIDIA CUDA detection and utilization
+- **Multi-worker Processing**: Concurrent request handling with Gunicorn
+- **Chunked Processing**: 30-second audio chunks for memory efficiency
+- **Model Caching**: One-time model initialization per worker process
+- **Thread-safe Operations**: Concurrent request handling with proper locking
+- **Atomic File Operations**: Safe API key storage with temporary files
+- **Memory Management**: Automatic cleanup of temporary audio files
+
+## 📊 Monitoring & Logging
+
+- **Comprehensive Logging**: All activities logged to `app.log` with timestamps
+- **Health Endpoints**: Monitor model status, GPU availability, and server health
+- **Process Management**: PID tracking in `gunicorn.pid` for process control
+- **Error Tracking**: Detailed error logging with stack traces for debugging
+- **Rate Limit Monitoring**: Automatic cleanup of expired rate limit entries
+- **API Key Management**: Secure storage in `.apikey` file with corruption recovery
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+| Issue | Solution |
+|-------|----------|
+| **CUDA not detected** | Install CUDA-enabled PyTorch: `pip install torch --index-url https://download.pytorch.org/whl/cu118` |
+| **Model loading fails** | Check internet connection and verify model name `NextInnoMind/next_bemba_ai` |
+| **Rate limit exceeded (429)** | Wait for rate limit window to reset or contact admin for limit increase |
+| **File too large (413)** | Reduce file size or increase `MAX_FILE_SIZE_MB` environment variable |
+| **Unsupported format** | Convert to supported formats: WAV, MP3, FLAC, OGG, M4A, or AAC |
+| **API key exists (409)** | Each IP can only generate one key. Use existing key or contact admin |
+
+### Debug Mode
+
+```bash
+# Enable debug logging
+export FLASK_DEBUG=1
+python app.py
+```
+
+## 🤝 Contributing
+
+We welcome contributions! Please follow these steps:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit changes (`git commit -m 'Add amazing feature'`)
+4. Push to branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🙏 Acknowledgments
+
+- **NextInnoMind** for the Bemba ASR model
+- **Hugging Face** for the transformers library
+- **Flask** community for the excellent web framework
+
+## 📞 Support
+
+- **Issues**: [GitHub Issues](https://github.com/SilasChalwe/farmvoiceassistant_backend/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/SilasChalwe/farmvoiceassistant_backend/discussions)
+- **Email**: support@nextinnomind.me
+
+---
+
+<div align="center">
+
+**Made with ❤️ for the Bemba-speaking community**
+
+[🌐 Live Demo](https://api.nextinnomind.me) • [📖 Documentation](https://github.com/SilasChalwe/farmvoiceassistant_backend) • [🐛 Report Bug](https://github.com/SilasChalwe/farmvoiceassistant_backend/issues)
+
+</div>
