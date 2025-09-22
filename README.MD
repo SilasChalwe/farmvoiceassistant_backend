@@ -50,8 +50,8 @@ Ensure you have the following installed:
 ### 1. Clone the Repository
 
 ```bash
-git clone https://github.com/SilasChalwe/farmvoiceassistant_backend.git
-cd farmvoiceassistant_backend
+git clone https://github.com/SilasChalwe/bemba-speech-recognition-api.git
+cd bemba-speech-recognition-api
 ```
 
 ### 2. Set up Virtual Environment
@@ -298,8 +298,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/SilasChalwe/farmvoiceassistant_backend/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/SilasChalwe/farmvoiceassistant_backend/discussions)
+- **Issues**: [GitHub Issues](https://github.com/SilasChalwe/bemba-speech-recognition-api/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/SilasChalwe/bemba-speech-recognition-api/discussions)
 - **Email**: support@nextinnomind.me
 
 ---
@@ -308,6 +308,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ for the Bemba-speaking community**
 
-[🌐 Live Demo](https://api.nextinnomind.me) • [📖 Documentation](https://github.com/SilasChalwe/farmvoiceassistant_backend) • [🐛 Report Bug](https://github.com/SilasChalwe/farmvoiceassistant_backend/issues)
+[🌐 Live Demo](https://api.nextinnomind.me) • [📖 Documentation](https://github.com/SilasChalwe/bemba-speech-recognition-api) • [🐛 Report Bug](https://github.com/SilasChalwe/bemba-speech-recognition-api/issues)
 
 </div>
