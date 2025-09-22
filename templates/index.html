@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bemba ASR API Endpoints</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .api-section {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: transform 0.3s ease;
+            margin: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        #api-key-display {
+            background: #f8fafc;
+            border: 1px dashed #764ba2;
+            padding: 15px;
+            border-radius: 10px;
+            word-wrap: break-word;
+            font-family: monospace;
+            color: #333;
+            text-align: center;
+            font-size: 1.1rem;
+            display: none;
+            margin-top: 20px;
+        }
+
+        .success-message {
+            background: #d1fae5;
+            color: #065f46;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 10px 0;
+            display: none;
+        }
+        
+        .upload-area {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+
+        .upload-area:hover, .upload-area.dragover {
+            border-color: #764ba2;
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        .upload-icon {
+            font-size: 4rem;
+            color: #667eea;
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e5e7eb;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 20px 0;
+            display: none;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+        
+        .result-section {
+            display: none;
+        }
+        
+        .result-section h3 {
+             margin-bottom: 10px;
+        }
+
+        .timestamp {
+            background: #f3f4f6;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 0.9rem;
+            color: #666;
+            margin: 5px;
+            display: inline-block;
+        }
+
+        .footer {
+            text-align: center;
+            color: white;
+            margin-top: 40px;
+            opacity: 0.8;
+        }
+        
+        /* New input field styles */
+        .api-input-group {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        #apiKeyInput {
+            width: 100%;
+            max-width: 500px;
+            padding: 15px;
+            border: 2px solid #e5e7eb;
+            border-radius: 10px;
+            font-size: 1rem;
+            text-align: center;
+            transition: border-color 0.3s;
+        }
+
+        #apiKeyInput:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            .container {
+                padding: 15px;
+            }
+            .api-section, .upload-section, .result-section {
+                padding: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-microchip"></i> Bemba ASR API Endpoints</h1>
+            <p>Test the working endpoints for Bemba Speech-to-Text</p>
+        </div>
+
+        <div class="api-section" id="apiKeySection">
+            <h2 style="text-align: center; margin-bottom: 20px;">
+                <i class="fas fa-key"></i> API Key Generation
+            </h2>
+            <p style="text-align: center; margin-bottom: 20px; color: #666;">
+                Get your unique API key to access our services.
+            </p>
+            <div style="text-align: center;">
+                <button class="btn" id="generateKeyBtn">
+                    <i class="fas fa-magic"></i> Generate Key
+                </button>
+            </div>
+            <div class="success-message" id="keySuccess"></div>
+            <div class="error-message" id="keyError"></div>
+            <div id="api-key-display"></div>
+        </div>
+
+        <div class="api-section" id="transcribeSection">
+            <h2 style="text-align: center; margin-bottom: 30px;">
+                <i class="fas fa-microphone-alt"></i> Transcription Endpoints
+            </h2>
+            
+            <div class="api-input-group">
+                <p style="margin-bottom: 10px; color: #555;">Enter your API key below:</p>
+                <input type="text" id="apiKeyInput" placeholder="Paste your API key here" required>
+            </div>
+            
+            <div id="fileUploadSection">
+                <div class="upload-area" id="uploadArea">
+                    <div class="upload-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h3>Drop an audio file here</h3>
+                    <p>or click to browse ({{ supported_formats|join(', ')|upper }})</p>
+                    <input type="file" id="audioFile" accept=".wav,.mp3,.flac,.ogg,.m4a,.aac" style="display: none;">
+                </div>
+                
+                <div style="text-align: center;">
+                    <button class="btn" id="uploadBtn" disabled>
+                        <i class="fas fa-upload"></i> Transcribe File
+                    </button>
+                    <button class="btn" id="urlBtn">
+                        <i class="fas fa-link"></i> Use URL
+                    </button>
+                </div>
+            </div>
+
+            <div id="urlInputSection" style="display: none;">
+                <div style="display: flex; gap: 10px; align-items: center; margin: 20px 0;">
+                    <input type="url" id="audioUrl" placeholder="https://example.com/audio.mp3" 
+                           style="flex: 1; padding: 15px; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 1rem;">
+                    <button class="btn" id="transcribeUrlBtn">
+                        <i class="fas fa-play"></i> Transcribe
+                    </button>
+                </div>
+                <button class="btn" id="backToUpload" style="background: #6b7280;">
+                    <i class="fas fa-arrow-left"></i> Back to Upload
+                </button>
+            </div>
+            
+            <div class="progress-bar" id="progressBar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+
+        <div class="result-section" id="resultSection">
+            <h3><i class="fas fa-file-text"></i> Transcription Result</h3>
+            <div id="transcriptionText" style="font-size: 1.2rem; line-height: 1.6; margin: 20px 0; padding: 20px; background: #f8fafc; border-radius: 10px;"></div>
+            <div id="timestamps"></div>
+            <div style="margin-top: 20px; text-align: center;">
+                <button class="btn" id="newTranscription">
+                    <i class="fas fa-plus"></i> New Transcription
+                </button>
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>&copy; 2025 Bemba ASR API | Built for the Bemba Community</p>
+        </div>
+    </div>
+
+    <script>
+        // DOM elements
+        const apiKeySection = document.getElementById('apiKeySection');
+        const transcribeSection = document.getElementById('transcribeSection');
+        const generateKeyBtn = document.getElementById('generateKeyBtn');
+        const apiKeyDisplay = document.getElementById('api-key-display');
+        const keyError = document.getElementById('keyError');
+        const keySuccess = document.getElementById('keySuccess');
+        const apiKeyInput = document.getElementById('apiKeyInput'); // New
+        
+        const uploadArea = document.getElementById('uploadArea');
+        const audioFile = document.getElementById('audioFile');
+        const uploadBtn = document.getElementById('uploadBtn');
+        const urlBtn = document.getElementById('urlBtn');
+        const fileUploadSection = document.getElementById('fileUploadSection');
+        const urlInputSection = document.getElementById('urlInputSection');
+        const audioUrl = document.getElementById('audioUrl');
+        const transcribeUrlBtn = document.getElementById('transcribeUrlBtn');
+        const backToUpload = document.getElementById('backToUpload');
+        
+        const progressBar = document.getElementById('progressBar');
+        const progressFill = document.getElementById('progressFill');
+        const errorMessage = document.getElementById('errorMessage');
+        const resultSection = document.getElementById('resultSection');
+        const transcriptionText = document.getElementById('transcriptionText');
+        const timestamps = document.getElementById('timestamps');
+        const newTranscription = document.getElementById('newTranscription');
+
+        // --- Event Listeners ---
+        generateKeyBtn.addEventListener('click', async () => {
+            hideKeyMessages();
+            generateKeyBtn.disabled = true;
+            generateKeyBtn.textContent = 'Generating...';
+            try {
+                const response = await fetch('/api/generate-key', { method: 'POST' });
+                const result = await response.json();
+                if (response.ok) {
+                    // No longer storing in localStorage
+                    apiKeyDisplay.textContent = `Your API Key: ${result.api_key}`;
+                    apiKeyDisplay.style.display = 'block';
+                    showKeySuccess(result.message);
+                    generateKeyBtn.textContent = 'Key Generated';
+                    // Optional: auto-fill the input field for user convenience
+                    apiKeyInput.value = result.api_key;
+                } else {
+                    showKeyError(result.error || 'Failed to generate API key.');
+                    generateKeyBtn.disabled = false;
+                    generateKeyBtn.textContent = 'Generate Key';
+                }
+            } catch (error) {
+                showKeyError('Network error: ' + error.message);
+                generateKeyBtn.disabled = false;
+                generateKeyBtn.textContent = 'Generate Key';
+            }
+        });
+
+        // Event listener for file upload to check key
+        uploadArea.addEventListener('click', () => {
+            // Check if key is entered before allowing file selection
+            if (apiKeyInput.value.trim() === '') {
+                showError('Please enter your API key first.');
+            } else {
+                audioFile.click();
+            }
+        });
+
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            if (apiKeyInput.value.trim() === '') {
+                showError('Please enter your API key first.');
+            } else if (e.dataTransfer.files.length > 0) {
+                audioFile.files = e.dataTransfer.files;
+                handleFileSelect();
+            }
+        });
+        audioFile.addEventListener('change', handleFileSelect);
+
+        uploadBtn.addEventListener('click', async () => {
+            const file = audioFile.files[0];
+            if (!file) return;
+            const formData = new FormData();
+            formData.append('file', file);
+            await transcribeFile(formData);
+        });
+
+        urlBtn.addEventListener('click', () => {
+            if (apiKeyInput.value.trim() === '') {
+                showError('Please enter your API key first.');
+            } else {
+                fileUploadSection.style.display = 'none';
+                urlInputSection.style.display = 'block';
+            }
+        });
+
+        backToUpload.addEventListener('click', () => {
+            urlInputSection.style.display = 'none';
+            fileUploadSection.style.display = 'block';
+        });
+
+        transcribeUrlBtn.addEventListener('click', async () => {
+            const url = audioUrl.value.trim();
+            if (!url) {
+                showError('Please enter a valid URL');
+                return;
+            }
+            const data = { audio_url: url };
+            await transcribeUrl(data);
+        });
+
+        newTranscription.addEventListener('click', () => {
+            hideResults();
+            hideError();
+            audioFile.value = '';
+            audioUrl.value = '';
+            uploadBtn.disabled = true;
+            uploadArea.querySelector('h3').textContent = 'Drop an audio file here';
+            urlInputSection.style.display = 'none';
+            fileUploadSection.style.display = 'block';
+        });
+
+        // --- Core Functions ---
+        async function transcribeFile(formData) {
+            const apiKey = apiKeyInput.value.trim();
+            if (!apiKey) {
+                showError('API key is missing. Please enter it to proceed.');
+                return;
+            }
+
+            showProgress();
+            hideError();
+            hideResults();
+            try {
+                const response = await fetch('/transcribe', {
+                    method: 'POST',
+                    body: formData,
+                    headers: { 'X-API-Key': apiKey }
+                });
+                const result = await response.json();
+                hideProgress();
+                if (response.ok) { showResults(result); } 
+                else { showError(result.error || 'Transcription failed'); }
+            } catch (error) {
+                hideProgress();
+                showError('Network error: ' + error.message);
+            }
+        }
+
+        async function transcribeUrl(data) {
+            const apiKey = apiKeyInput.value.trim();
+            if (!apiKey) {
+                showError('API key is missing. Please enter it to proceed.');
+                return;
+            }
+
+            showProgress();
+            hideError();
+            hideResults();
+            try {
+                const response = await fetch('/transcribe_url', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-API-Key': apiKey
+                    },
+                    body: JSON.stringify(data)
+                });
+                const result = await response.json();
+                hideProgress();
+                if (response.ok) { showResults(result); } 
+                else { showError(result.error || 'Transcription failed'); }
+            } catch (error) {
+                hideProgress();
+                showError('Network error: ' + error.message);
+            }
+        }
+
+        // --- Helper Functions ---
+        function handleFileSelect() {
+            const file = audioFile.files[0];
+            if (file) {
+                uploadBtn.disabled = false;
+                uploadArea.querySelector('h3').textContent = `Selected: ${file.name}`;
+                hideError();
+            }
+        }
+        function showProgress() {
+            progressBar.style.display = 'block';
+            progressFill.style.width = '100%';
+            uploadBtn.disabled = true;
+            transcribeUrlBtn.disabled = true;
+        }
+        function hideProgress() {
+            progressBar.style.display = 'none';
+            progressFill.style.width = '0%';
+            uploadBtn.disabled = false;
+            transcribeUrlBtn.disabled = false;
+        }
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+        function showKeyError(message) {
+            keyError.textContent = message;
+            keyError.style.display = 'block';
+        }
+        function showKeySuccess(message) {
+            keySuccess.textContent = message;
+            keySuccess.style.display = 'block';
+        }
+        function hideKeyMessages() {
+            keyError.style.display = 'none';
+            keySuccess.style.display = 'none';
+        }
+        function showResults(result) {
+            transcriptionText.textContent = result.text;
+            timestamps.innerHTML = '';
+            if (result.timestamps && result.timestamps.length > 0) {
+                const timestampTitle = document.createElement('h4');
+                timestampTitle.textContent = 'Timestamps:';
+                timestamps.appendChild(timestampTitle);
+                result.timestamps.forEach(chunk => {
+                    const span = document.createElement('span');
+                    span.className = 'timestamp';
+                    span.textContent = `${chunk.timestamp[0].toFixed(1)}s - ${chunk.timestamp[1].toFixed(1)}s: ${chunk.text}`;
+                    timestamps.appendChild(span);
+                });
+            }
+            resultSection.style.display = 'block';
+            resultSection.scrollIntoView({ behavior: 'smooth' });
+        }
+        function hideResults() {
+            resultSection.style.display = 'none';
+        }
+    </script>
+</body>
+</html>
